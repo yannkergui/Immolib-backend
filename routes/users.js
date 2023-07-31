@@ -100,14 +100,14 @@ router.post('/signin', (req, res) => {
 
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
-router.put('/', (req, res) => {  
+router.put('/:email', (req, res) => {  
   const {prenom, nom, email, tel, 
     zone, budgetMois, typeBien, minSurface, minPiece, nbLoc, meuble, 
     budgetMax, typeInvest, 
     salaire, primo, financement, accordBanque, banqueDoc,
     idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body
 
-    User.findOne({ email }).then(data => { 
+    User.updateOne({ email: req.params.email }, {prenom:prenom}).then(data => { 
       data.prenom=prenom;
       data.nom=nom;
       data.tel=tel;
