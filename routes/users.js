@@ -11,7 +11,7 @@ const bcrypt = require('bcrypt');
 router.post('/signup', (req, res) => {
   // Vérifie que les champs ne sont pas vides
   if (!checkBody(req.body, ['prenom', 'nom','email', 'motDePasse', 'tel'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+    res.json({ result: false, error: 'champs manquants ou vides' });
     return;
   }
   User.findOne({ email: req.body.email }).then(data => {
@@ -26,56 +26,12 @@ router.post('/signup', (req, res) => {
         motDePasse: hash,
         token: uid2(32),
         })
-      /*
-      const newUser = new User({
-        prenom: req.body.prenom,
-        nom: req.body.nom,
-        email: req.body.email,
-        tel: req.body.tel,
-        motDePasse: hash,
-        token: uid2(32),
-        location : {
-          zone : req.body.zone,
-          budgetMois: req.body.budgetMois,
-          typeBien: req.body.typeBien,
-          minSurface: req.body.minSurface,
-          minPiece: req.body.minPiece,
-          nbLoc: req.body.nbLoc,
-          meuble: req.body.meuble,
-        },
-        achat : {
-          zone: req.body.zone,
-          budgetMax : req.body.budgetMax,
-          typeBien: req.body.typeBien,
-          minSurface: req.body.minSurface,
-          minPiece: req.body.minPiece,
-          typeInvest : req.body.typeInvest,
-        },
-        salaire : req.body.salaire,
-        primo: req.body.primo,
-        financement: req.body.financement,
-        accordBanque: req.body.accordBanque,
-        banqueDoc: req.body.banqueDoc,
-        documents : {
-          idDoc: req.body.idDoc,
-          domDoc: req.body.domDoc,
-          contrat : req.body.contrat,
-          salaire1: req.body.salaire1,
-          salaire2: req.body.salaire2,
-          salaire3: req.body.salaire3,
-          impots: req.body.impots,
-          bilan: req.body.bilan,
-          autres : req.body.autres,
-        }
-        
-      }); */
-
       newUser.save().then(newDoc => {
         res.json({ result: true, token: newDoc.token });
       });
     } else {
       // Utilisateur déjà existant dans la BDD
-      res.json({ result: false, error: 'User already exists' });
+      res.json({ result: false, error: 'Utilisateur déjà existant' });
     }
   });
 });
@@ -85,7 +41,7 @@ router.post('/signup', (req, res) => {
 router.post('/signin', (req, res) => {
   // Vérifie que les champs ne sont pas vides
   if (!checkBody(req.body, ['email', 'motDePasse'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
+    res.json({ result: false, error: 'champs manquants ou vides' });
     return;
   }
   User.findOne({ email: req.body.email }).then(data => {
@@ -93,38 +49,55 @@ router.post('/signin', (req, res) => {
     if (data && bcrypt.compareSync(req.body.motDePasse, data.motDePasse)) {
       res.json({ result: true, token: data.token });
     } else {
-      res.json({ result: false, error: 'User not found or wrong password' });
+      res.json({ result: false, error: 'Utilisateur non trouvé ou mauvais mot de passe' });
     }
   });
 });
 
 
+//RECUPERATION D'UN UTILSATEUR DE LA BDD
+router.get('/', (req, res) => {
+  const {email}=req.body;
+
+	User.findOne({email}).then(data => {
+    if (data) {
+      res.json({ user: data });
+    } else {
+      res.json({erreur : "Utilisateur non existant"})
+    }
+		
+	});
+});
+
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
 router.put('/:email', (req, res) => {  
   const {prenom, nom, email, tel, 
-    zone, budgetMois, typeBien, minSurface, minPiece, nbLoc, meuble, 
-    budgetMax, typeInvest, 
+    zoneLoc, budgetMois, typeBienLoc, minSurfaceLoc, minPieceLoc, nbLoc, meuble, 
+    zoneAchat, budgetMax, typeBienAchat, minSurfaceAchat, minPieceAchat, typeInvest, 
     salaire, primo, financement, accordBanque, banqueDoc,
-    idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body
+    idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body;
 
-    User.updateOne({ email: req.params.email }, {prenom:prenom}).then(data => { 
+    User.findOne({email:req.params.email}).then(data => { 
+      if (data) {
+
       data.prenom=prenom;
       data.nom=nom;
+      data.email=email;
       data.tel=tel;
-
-      data.location.zone=zone;
+      
+      data.location.zoneLoc=zoneLoc;
       data.location.budgetMois=budgetMois;
-      data.location.typeBien=typeBien;
-      data.location.minSurface=minSurface;
-      data.location.minPiece=minPiece;
+      data.location.typeBienLoc=typeBienLoc;
+      data.location.minSurfaceLoc=minSurfaceLoc;
+      data.location.minPieceLoc=minPieceLoc;
       data.location.nbLoc=nbLoc;
       data.location.meuble=meuble;
 
-      data.achat.zone = zone;
+      data.achat.zoneAchat = zoneAchat;
       data.achat.budgetMax = budgetMax;
-      data.achat.typeBien=typeBien;
-      data.achat.minSurface=minSurface;
-      data.achat.minPiece=minPiece;
+      data.achat.typeBienAchat=typeBienAchat;
+      data.achat.minSurfaceAchat=minSurfaceAchat;
+      data.achat.minPieceAchat=minPieceAchat;
       data.achat.typeInvest=typeInvest;
 
       data.salaire=salaire;
@@ -142,9 +115,13 @@ router.put('/:email', (req, res) => {
       data.documents.impots=impots;
       data.documents.bilan=bilan;
       data.documents.autres=autres;
-
+      
       res.json({"user après modif": data })
-    });
+      data.save();
+      } else {
+        res.json({erreur : "Utilisateur non trouvé" })
+      }
+    })
 })
 
 
