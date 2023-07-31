@@ -56,26 +56,50 @@ router.post('/signin', (req, res) => {
   });
 });
 
+//recherche d'un Pro
+router.get("/:email", (req, res) => {
+    Pros.findOne({
+      email:req.params.email,
+    }).then(data => {
+      if (data) {
+        res.json({ result: true, data: data });
+      } else {
+        res.json({ result: false, error: "user not found" });
+      }
+    });
+  });
+
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION Pros
-router.put('/', (req, res) => {  
-  const {raisonSociale, Siret, prenom, nom, email, tel, motDePasse, numRue, codePostal, photo}=req.body
-
-    Pros.updateOne({ email }).then(data => { 
-      data.raisonSociale=raisonSociale;
-      data.Siret=Siret;
-      data.prenom=prenom;
-      data.nom=nom;
-      data.tel=tel;
-
-      data.motDePasse=motDePasse;
-      data.numRue=numRue;
-      data.codePostal=codePostal;
-      data.photo=photo;
-
-      res.json({"user après modif": data })
-    });
-})
+router.put('/:email', (req, res) => {
+    const { raisonSociale, Siret, prenom, nom, email, tel, motDePasse, numRue, codePostal, photo } = req.body;
+  
+    // Recherche du document à mettre à jour
+    Pros.findOne({email: req.params.email}).then(data => {
+        if (data) {
+          console.log(data.planning);
+        data.raisonSociale = raisonSociale;
+        data.Siret = Siret;
+        data.prenom = prenom;
+        data.nom = nom;
+        data.tel = tel;
+        data.email= email
+        data.motDePasse = motDePasse;
+        data.numRue = numRue;
+        data.codePostal = codePostal;
+        data.photo = photo;
+        data.planning.dateDispo = req.body.dateDispo
+  
+    // Sauvegarde des infos modifiées
+        data.save().then(updatedDoc => {
+          res.json({ "user après modif": updatedDoc });
+        })
+      } else {
+        // User not found
+        res.json({ result: false, error: 'User not found' });
+      }
+    })
+  });
 
 
 //SUPPRESSION DE COMPTE
