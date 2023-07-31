@@ -7,6 +7,8 @@ var logger = require('morgan');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
+var prosRouter = require('./routes/pros');
+
 
 var app = express();
 const cors = require("cors") // Cors installation
@@ -20,5 +22,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('pros',prosRouter)
 
 module.exports = app;
