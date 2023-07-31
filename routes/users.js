@@ -19,6 +19,14 @@ router.post('/signup', (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.motDePasse, 10);
 
+      const {prenom, nom, email, tel}=req.body
+
+      const newUser = new User({
+        prenom, nom, email, tel,
+        motDePasse: hash,
+        token: uid2(32),
+        })
+      /*
       const newUser = new User({
         prenom: req.body.prenom,
         nom: req.body.nom,
@@ -59,7 +67,8 @@ router.post('/signup', (req, res) => {
           bilan: req.body.bilan,
           autres : req.body.autres,
         }
-      });
+        
+      }); */
 
       newUser.save().then(newDoc => {
         res.json({ result: true, token: newDoc.token });
@@ -70,6 +79,7 @@ router.post('/signup', (req, res) => {
     }
   });
 });
+
 
 //SIGN IN - CONNEXION DE L'UTILISATEUR
 router.post('/signin', (req, res) => {
@@ -87,6 +97,56 @@ router.post('/signin', (req, res) => {
     }
   });
 });
+
+
+//MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
+router.put('/', (req, res) => {  
+  const {prenom, nom, email, tel, 
+    zone, budgetMois, typeBien, minSurface, minPiece, nbLoc, meuble, 
+    budgetMax, typeInvest, 
+    salaire, primo, financement, accordBanque, banqueDoc,
+    idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body
+
+    User.findOne({ email }).then(data => { 
+      data.prenom=prenom;
+      data.nom=nom;
+      data.tel=tel;
+
+      data.location.zone=zone;
+      data.location.budgetMois=budgetMois;
+      data.location.typeBien=typeBien;
+      data.location.minSurface=minSurface;
+      data.location.minPiece=minPiece;
+      data.location.nbLoc=nbLoc;
+      data.location.meuble=meuble;
+
+      data.achat.zone = zone;
+      data.achat.budgetMax = budgetMax;
+      data.achat.typeBien=typeBien;
+      data.achat.minSurface=minSurface;
+      data.achat.minPiece=minPiece;
+      data.achat.typeInvest=typeInvest;
+
+      data.salaire=salaire;
+      data.primo=primo;
+      data.financement=financement;
+      data.accordBanque=accordBanque;
+      data.banqueDoc=banqueDoc;
+
+      data.documents.idDoc=idDoc;
+      data.documents.domDoc=domDoc;
+      data.documents.contrat=contrat;
+      data.documents.salaire1=salaire1;
+      data.documents.salaire2=salaire2;
+      data.documents.salaire3=salaire3;
+      data.documents.impots=impots;
+      data.documents.bilan=bilan;
+      data.documents.autres=autres;
+
+      res.json({"user après modif": data })
+    });
+})
+
 
 //SUPPRESSION DE COMPTE
 router.delete('/:email', (req, res) => {
