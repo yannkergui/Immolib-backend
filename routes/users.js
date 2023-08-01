@@ -71,56 +71,18 @@ router.get('/', (req, res) => {
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
 router.put('/:email', (req, res) => {  
-  const {prenom, nom, email, tel, 
-    zoneLoc, budgetMois, typeBienLoc, minSurfaceLoc, minPieceLoc, nbLoc, meuble, 
-    zoneAchat, budgetMax, typeBienAchat, minSurfaceAchat, minPieceAchat, typeInvest, 
-    salaire, primo, financement, accordBanque, banqueDoc,
-    idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body;
+    
+    const data = req.body;
 
-    User.findOne({email:req.params.email}).then(data => { 
+    User.updateOne({email:req.params.email}, {$set : data}).then(() => {
+      User.findOne({email:req.params.email}).then(data => { 
       if (data) {
-
-      data.prenom=prenom;
-      data.nom=nom;
-      data.email=email;
-      data.tel=tel;
-      
-      data.location.zoneLoc=zoneLoc;
-      data.location.budgetMois=budgetMois;
-      data.location.typeBienLoc=typeBienLoc;
-      data.location.minSurfaceLoc=minSurfaceLoc;
-      data.location.minPieceLoc=minPieceLoc;
-      data.location.nbLoc=nbLoc;
-      data.location.meuble=meuble;
-
-      data.achat.zoneAchat = zoneAchat;
-      data.achat.budgetMax = budgetMax;
-      data.achat.typeBienAchat=typeBienAchat;
-      data.achat.minSurfaceAchat=minSurfaceAchat;
-      data.achat.minPieceAchat=minPieceAchat;
-      data.achat.typeInvest=typeInvest;
-
-      data.salaire=salaire;
-      data.primo=primo;
-      data.financement=financement;
-      data.accordBanque=accordBanque;
-      data.banqueDoc=banqueDoc;
-
-      data.documents.idDoc=idDoc;
-      data.documents.domDoc=domDoc;
-      data.documents.contrat=contrat;
-      data.documents.salaire1=salaire1;
-      data.documents.salaire2=salaire2;
-      data.documents.salaire3=salaire3;
-      data.documents.impots=impots;
-      data.documents.bilan=bilan;
-      data.documents.autres=autres;
-      
-      res.json({"user après modif": data })
-      data.save();
+        console.log('data : ', data)
+      res.json({userUpdated: data })
       } else {
         res.json({erreur : "Utilisateur non trouvé" })
       }
+    })
     })
 })
 
