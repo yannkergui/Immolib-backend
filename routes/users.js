@@ -70,7 +70,7 @@ router.get('/', (req, res) => {
 });
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
-router.post('/:email', (req, res) => {  
+router.put('/:email', (req, res) => {  
     
     const data = req.body;
 
