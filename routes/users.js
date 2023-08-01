@@ -70,16 +70,21 @@ router.get('/', (req, res) => {
 });
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION USERS
-router.put('/:email', (req, res) => {  
-  const {prenom, nom, email, tel, 
-    zoneLoc, budgetMois, typeBienLoc, minSurfaceLoc, minPieceLoc, nbLoc, meuble, 
-    zoneAchat, budgetMax, typeBienAchat, minSurfaceAchat, minPieceAchat, typeInvest, 
-    salaire, primo, financement, accordBanque, banqueDoc,
-    idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body;
+router.post('/:email', (req, res) => {  
+  
+  // const  {prenom, nom, email, tel,
+  //   zoneLoc, budgetMois, typeBienLoc, minSurfaceLoc, minPieceLoc, nbLoc, meuble, 
+  //   zoneAchat, budgetMax, typeBienAchat, minSurfaceAchat, minPieceAchat, typeInvest, 
+  //   salaire, primo, financement, accordBanque, banqueDoc,
+  //   idDoc, domDoc, contrat, salaire1, salaire2, salaire3, impots, bilan, autres}=req.body;
+    
+    const data = req.body;
 
-    User.findOne({email:req.params.email}).then(data => { 
+    User.updateOne({email:req.params.email}, {data}).then(() => {
+      User.findOne({email:req.params.email}).then(data => { 
       if (data) {
-
+        console.log('data : ', data)
+       /* 
       data.prenom=prenom;
       data.nom=nom;
       data.email=email;
@@ -115,12 +120,13 @@ router.put('/:email', (req, res) => {
       data.documents.impots=impots;
       data.documents.bilan=bilan;
       data.documents.autres=autres;
-      
-      res.json({"user après modif": data })
-      data.save();
+      */
+      res.json({userUpdated: data })
+      //data.save();
       } else {
         res.json({erreur : "Utilisateur non trouvé" })
       }
+    })
     })
 })
 
