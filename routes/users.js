@@ -27,7 +27,7 @@ router.post('/signup', (req, res) => {
         token: uid2(32),
         })
       newUser.save().then(newDoc => {
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, data: newDoc });
       });
     } else {
       // Utilisateur déjà existant dans la BDD
@@ -47,7 +47,7 @@ router.post('/signin', (req, res) => {
   User.findOne({ email: req.body.email }).then(data => {
     // Vérifie si l'utilisateur est bien présent dans la BDD
     if (data && bcrypt.compareSync(req.body.motDePasse, data.motDePasse)) {
-      res.json({ result: true, token: data.token });
+      res.json({ result: true, data: data });
     } else {
       res.json({ result: false, error: 'Utilisateur non trouvé ou mauvais mot de passe' });
     }
