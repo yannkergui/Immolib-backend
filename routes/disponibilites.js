@@ -36,7 +36,7 @@ router.post("/", async (req, res) => {
 
     // Si pas de conflit, créer la disponibilité dans la base de données
     const newAvailability = new Disponibilites({
-      prosId: prosId,
+      pro: pro,
       dayOfWeek: dayOfWeek,
       startTime: startTime,
       endTime: endTime,
