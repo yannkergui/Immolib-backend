@@ -56,19 +56,47 @@ router.post("/", async (req, res) => {
 // route pour récupérer les disponibilités d'un pro
 router.get("/:pro", (req, res) => {
   Disponibilites.find().then((data) => {
-  
-    let result=[]
-   
-    for (let i=0; i<data.length; i++) {
-      if(data[i].pro == req.params.pro)
-      {console.log(data[i]);
-        result.push(data[i])
-       ;}
+    let result = [];
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].pro == req.params.pro) {
+        console.log(data[i]);
+        result.push(data[i]);
+      }
     }
-    if (result.length == 0) {res.json({result : false})}
-    else {res.json({ data: result })}  
-     
+    if (result.length == 0) {
+      res.json({ result: false });
+    } else {
+      res.json({ data: result });
+    }
   });
 });
 
+// route pour supprimer une disponibilité
+router.delete("/:id", (req, res) => {
+  Disponibilites.findById(req.params.id).then((data) => {
+    if (data) {
+      Disponibilites.findByIdAndDelete(req.params.id).then(() => {
+        res.json({ message: "Disponibilité supprimée avec succès." });
+      });
+    } else {
+      res.json({ message: "Disponibilité introuvable" });
+    }
+  });
+});
+
+// route pour modifier une disponibilité
+router.put("/:id", (req, res) => {
+  const data = req.body;
+
+  Disponibilites.updateOne({ _id: req.params.id }, { $set: data }).then(() => {
+    Disponibilites.findById(req.params.id).then((data) => {
+      if (data) {
+        res.json({ dispo: data });
+      } else {
+        res.json({ erreur: "Disponibilité non trouvée" });
+      }
+    });
+  });
+});
 module.exports = router;
