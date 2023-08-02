@@ -19,10 +19,10 @@ router.post('/signup', (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.motDePasse, 10);
 
-      const {raisonSociale, Siret, prenom, nom, email, tel}=req.body
+      const {raisonSociale, siret, prenom, nom, email, tel}=req.body
 
       const newPros = new Pros({
-        raisonSociale, Siret, prenom, nom, email, tel,
+        raisonSociale, siret, prenom, nom, email, tel,
         motDePasse: hash,
         token: uid2(32),
         })
@@ -49,7 +49,7 @@ router.post('/signin', (req, res) => {
   Pros.findOne({ email: req.body.email }).then(data => {
     // Vérifie si l'utilisateur est bien présent dans la BDD
     if (data && bcrypt.compareSync(req.body.motDePasse, data.motDePasse)) {
-      res.json({ result: true, token: data.token });
+      res.json({ result: true, pro: data });
     } else {
       res.json({ result: false, error: 'User not found or wrong password' });
     }
@@ -62,7 +62,7 @@ router.get("/:email", (req, res) => {
       email:req.params.email,
     }).then(data => {
       if (data) {
-        res.json({ result: true, data: data });
+        res.json({ result: true, pro: data });
       } else {
         res.json({ result: false, error: "user not found" });
       }
@@ -72,14 +72,14 @@ router.get("/:email", (req, res) => {
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION Pros
 router.put('/:email', (req, res) => {
-    const { raisonSociale, Siret, prenom, nom, email, tel, motDePasse, numRue, codePostal, photo } = req.body;
+    const { raisonSociale, siret, prenom, nom, email, tel, motDePasse, numRue, codePostal, photo } = req.body;
   
     // Recherche du document à mettre à jour
     Pros.findOne({email: req.params.email}).then(data => {
         if (data) {
           console.log(data.planning);
         data.raisonSociale = raisonSociale;
-        data.Siret = Siret;
+        data.siret = siret;
         data.prenom = prenom;
         data.nom = nom;
         data.tel = tel;
