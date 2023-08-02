@@ -10,28 +10,8 @@ const Pros = require("../models/pros");
 const Disponibilites = require("../models/disponibilites");
 const { checkBody } = require("../modules/checkBody");
 
-//route pour créer une disponibilité
-// router.post("/", (req, res) => {
-//   // Vérifie que les champs ne sont pas vides
-//   if (!checkBody(req.body, ["dayOfWeek", "startTime", "endTime", "pro"])) {
-//     res.json({ result: false, error: "champs manquants ou vides" });
-//     return;
-//   }
-//   const { dayOfWeek, startTime, endTime, pro} = req.body
-//       const newDisponibilite = new Disponibilites({
-//         dayOfWeek,
-//         startTime,
-//         endTime,
-//         pro,
-//       });
-//       newDisponibilite.save()
-//       // .populate('pros')
-//       .then((newDoc) => {
-//         res.json({ result: true, data: newDoc });
-//       });
-//   });
 
-// Endpoint pour gérer la création de disponibilités CHATGPT
+// route pour créer une disponibilité
 router.post("/", async (req, res) => {
   const { prosId, dayOfWeek, startTime, endTime } = req.body;
 
@@ -51,7 +31,6 @@ router.post("/", async (req, res) => {
 
     if (existingAvailability) {
       return res
-        .status(409)
         .json({
           message:
             "Conflit de disponibilité. Vous avez déjà une disponibilité sur cette plage horaire.",
@@ -69,11 +48,9 @@ router.post("/", async (req, res) => {
     await newAvailability.save();
 
     return res
-      .status(200)
       .json({ message: "Disponibilité créée avec succès." });
   } catch (error) {
     return res
-      .status(500)
       .json({
         message:
           "Une erreur est survenue lors de la création de la disponibilité.",
