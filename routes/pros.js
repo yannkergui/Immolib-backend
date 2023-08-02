@@ -29,7 +29,7 @@ router.post('/signup', (req, res) => {
      
 
       newPros.save().then(newDoc => {
-        res.json({ result: true, token: newDoc.token });
+        res.json({ result: true, pro: newDoc });
       });
     } else {
       // Utilisateur déjà existant dans la BDD

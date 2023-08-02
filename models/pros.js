@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 
 const prosSchema = mongoose.Schema({
   raisonSociale: String,
-  Siret: Number,
+  siret: Number,
   prenom: String,
   nom: String,
   email : String,
@@ -13,9 +13,9 @@ const prosSchema = mongoose.Schema({
   rue: String,
   codePostal : Number,
   photo: String,
-  planning : {
-    dateDispo:Date,
-  },
+  planning : 
+    { dateDispo: Date,
+    },
 });
   
 const Pros = mongoose.model('pros', prosSchema);
