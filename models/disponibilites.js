@@ -2,8 +2,8 @@ const mongoose = require('mongoose');
 
 const disponibilitesSchema = mongoose.Schema({
   dayOfWeek: String,
-  startTime: String,
-  endTime: String,
+  startTime: Date,
+  endTime: Date
   pro: {type: mongoose.Schema.Types.ObjectId, ref: 'pros'},
 });
 
