@@ -33,7 +33,7 @@ router.post("/", async (req, res) => {
       return res
         .json({
           message:
-            "Conflit de disponibilité. Vous avez déjà une disponibilité sur cette plage horaire.",
+            "Vous avez déjà une disponibilité sur cette plage horaire.",
         });
     }
 
@@ -53,7 +53,7 @@ router.post("/", async (req, res) => {
     return res
       .json({
         message:
-          "Une erreur est survenue lors de la création de la disponibilité.",
+          "Une erreur est survenue lors de la création de votre disponibilité.",
       });
   }
 });
