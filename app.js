@@ -10,6 +10,7 @@ var usersRouter = require("./routes/users");
 var prosRouter = require("./routes/pros");
 var biensRouter = require("./routes/bienImmo");
 var disponibilitesRouter = require("./routes/disponibilites");
+var visitesRouter = require("./routes/visites");
 
 var app = express();
 const cors = require("cors"); // Cors installation
@@ -26,5 +27,6 @@ app.use("/users", usersRouter);
 app.use("/pros", prosRouter);
 app.use("/biens", biensRouter);
 app.use("/disponibilites", disponibilitesRouter);
+app.use("/visites", visitesRouter);
 
 module.exports = app;
