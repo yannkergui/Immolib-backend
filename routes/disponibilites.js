@@ -10,7 +10,6 @@ const Pros = require("../models/pros");
 const Disponibilites = require("../models/disponibilites");
 const { checkBody } = require("../modules/checkBody");
 
-
 // route pour créer une disponibilité
 router.post("/", async (req, res) => {
   const { pro, dayOfWeek, startTime, endTime } = req.body;
@@ -30,11 +29,9 @@ router.post("/", async (req, res) => {
     });
 
     if (existingAvailability) {
-      return res
-        .json({
-          message:
-            "Vous avez déjà une disponibilité sur cette plage horaire.",
-        });
+      return res.json({
+        message: "Vous avez déjà une disponibilité sur cette plage horaire.",
+      });
     }
 
     // Si pas de conflit, créer la disponibilité dans la base de données
@@ -47,16 +44,20 @@ router.post("/", async (req, res) => {
 
     await newAvailability.save();
 
-    return res
-      .json({ message: "Disponibilité créée avec succès." });
+    return res.json({ message: "Disponibilité créée avec succès." });
   } catch (error) {
-    return res
-      .json({
-        message:
-          "Une erreur est survenue lors de la création de votre disponibilité.",
-      });
+    return res.json({
+      message:
+        "Une erreur est survenue lors de la création de votre disponibilité.",
+    });
   }
 });
 
+// route pour récupérer les disponibilités d'un pro
+router.get("/", (req, res) => {
+  Disponibilites.find().then((data) => {
+    console.log(data);
+  });
+});
 
 module.exports = router;
