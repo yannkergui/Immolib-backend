@@ -56,7 +56,13 @@ router.post("/", async (req, res) => {
 // route pour récupérer les disponibilités d'un pro
 router.get("/", (req, res) => {
   Disponibilites.find().then((data) => {
-    console.log(data);
+    // console.log(data);
+    data.map((e)=>{
+        // console.log(e.pro);
+        if(e.pro === req.body.pro){
+         console.log(e);
+        }
+    })
   });
 });
 
