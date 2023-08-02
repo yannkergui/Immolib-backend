@@ -70,36 +70,22 @@ router.get("/:email", (req, res) => {
   });
 
 
-//MISE A JOUR D'UN CHAMP DE LA COLLECTION Pros
-router.put('/:email', (req, res) => {
-    const { raisonSociale, siret, prenom, nom, email, tel, motDePasse, numRue, codePostal, photo } = req.body;
-  
-    // Recherche du document à mettre à jour
-    Pros.findOne({email: req.params.email}).then(data => {
-        if (data) {
-          console.log(data.planning);
-        data.raisonSociale = raisonSociale;
-        data.siret = siret;
-        data.prenom = prenom;
-        data.nom = nom;
-        data.tel = tel;
-        data.email= email
-        data.motDePasse = motDePasse;
-        data.numRue = numRue;
-        data.codePostal = codePostal;
-        data.photo = photo;
-        data.planning.dateDispo = req.body.dateDispo
-  
-    // Sauvegarde des infos modifiées
-        data.save().then(updatedDoc => {
-          res.json({ "user après modif": updatedDoc });
-        })
-      } else {
-        // User not found
-        res.json({ result: false, error: 'User not found' });
-      }
-    })
-  });
+//MISE A JOUR D'UN CHAMP DE LA COLLECTION PROS
+router.put('/:email', (req, res) => {  
+    
+  const data = req.body;
+
+  User.updateOne({email:req.params.email}, {$set : data}).then(() => {
+    User.findOne({email:req.params.email}).then(data => { 
+    if (data) {
+      console.log('data : ', data)
+    res.json({userUpdated: data })
+    } else {
+      res.json({erreur : "Utilisateur non trouvé" })
+    }
+  })
+  })
+})
 
 
 //SUPPRESSION DE COMPTE
