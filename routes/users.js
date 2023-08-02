@@ -54,10 +54,16 @@ router.post('/signin', (req, res) => {
   });
 });
 
-
 //RECUPERATION D'UN UTILSATEUR DE LA BDD
 router.get('/', (req, res) => {
-  const {email}=req.body;
+	User.find().then(data => {
+		res.json({ data: data });
+	});
+});
+
+//RECUPERATION D'UN UTILSATEUR DE LA BDD
+router.get('/:email', (req, res) => {
+  const {email}=req.params;
 
 	User.findOne({email}).then(data => {
     if (data) {
