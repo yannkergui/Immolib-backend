@@ -11,7 +11,7 @@ const Visite = require("../models/visites");
 
 // Endpoint pour gérer la création de rendez-vous
 router.post("/", (req, res) => {
-  const { prosId, usersId, date, startTimeVisit, duration, bienImmoId } =
+  const { prosId, usersId, dateOfVisit, startTimeVisit, duration, bienImmoId } =
     req.body;
 
   //création d'une constante pour le endTimeVisit qui est le StartTime + duration de la visite
@@ -19,20 +19,31 @@ router.post("/", (req, res) => {
     .add(duration, "minutes")
     .format("HH:mm");
 
+  //création d'une constante pour le jour de la semaine
+  const dayOfWeek = moment(dateOfVisit).locale("fr").format("dddd");
+  console.log("dayOfWeek: ", dayOfWeek);
+  console.log("dateOfVisit: ", dateOfVisit);
+  console.log("prosId: ", prosId);
+
+
   // Vérifier si le pro est disponible
   Disponibilites.findOne({
     pro: prosId,
-    dayOfWeek: date,
+    dayOfWeek: dayOfWeek,
     startTimeDispo: { $lte: startTimeVisit },
     endTimeDispo: { $gte: endTimeVisit },
+    "Exception.dateOfVisit": dateOfVisit,
+    "Exception.startTimeVisit": { $ne: startTimeVisit },
+    "Exception.endTimeVisit": { $ne: endTimeVisit },
   }).then((data) => {
     if (data) {
       console.log("infos dispo: ", data);
+      console.log("exception.date: ", data.Exception.dateOfVisit);
 
       const newVisit = new Visite({
         prosId: prosId,
         usersId: usersId,
-        date: date,
+        dateOfVisit: dateOfVisit,
         startTimeVisit: startTimeVisit,
         endTimeVisit: endTimeVisit,
         duration: duration,
@@ -46,6 +57,14 @@ router.post("/", (req, res) => {
           newVisit: newVisit,
         });
       });
+      data.Exception.push({
+        dateOfVisit: dateOfVisit,
+        startTimeVisit: startTimeVisit,
+        endTimeVisit: endTimeVisit,
+        duration: duration,
+      });
+      data.save();
+      console.log("data.Exception: ", data.Exception);
     } else {
       res.json({
         message: "Le pro n'est pas disponible à ce moment-là.",
@@ -89,7 +108,7 @@ router.get("/user/:usersId", (req, res) => {
     .populate("bienImmoId")
     .then((data) => {
       if (data.length > 0) {
-        console.log('data',data);
+        console.log("data", data);
         res.json({ VisitesTrouvees: data, result: true });
       } else {
         res.json({
@@ -99,5 +118,7 @@ router.get("/user/:usersId", (req, res) => {
       }
     });
 });
+
+//création d'une route pour supprimer une visite
 
 module.exports = router;

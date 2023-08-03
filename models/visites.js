@@ -11,7 +11,7 @@ const visiteSchema = new mongoose.Schema({
     ref: "users",
     required: true,
   },
-  date: {
+  dateOfVisit: {
     type: String,
     required: true,
   },
@@ -21,7 +21,7 @@ const visiteSchema = new mongoose.Schema({
   },
   endTimeVisit: {
     type: String,
-    required: true,
+    required: false,
   },
   duration: {
     type: Number,

@@ -40,6 +40,7 @@ router.post("/", async (req, res) => {
       dayOfWeek: dayOfWeek,
       startTimeDispo: startTimeDispo,
       endTimeDispo: endTimeDispo,
+      Exception: [],
     });
 
     await newAvailability.save();
