@@ -10,7 +10,7 @@ const Disponibilites = require("../models/disponibilites");
 const Visite = require("../models/visites");
 
 // Endpoint pour gérer la création de rendez-vous
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
   const { prosId, usersId, dateOfVisit, startTimeVisit, duration, bienImmoId } =
     req.body;
 
@@ -25,46 +25,90 @@ router.post("/", (req, res) => {
   console.log("dateOfVisit: ", dateOfVisit);
   console.log("prosId: ", prosId);
 
-
   // Vérifier si le pro est disponible
-  Disponibilites.findOne({
+ await Disponibilites.findOne({
     pro: prosId,
     dayOfWeek: dayOfWeek,
     startTimeDispo: { $lte: startTimeVisit },
     endTimeDispo: { $gte: endTimeVisit },
-    "Exception.dateOfVisit": dateOfVisit,
-    "Exception.startTimeVisit": { $ne: startTimeVisit },
-    "Exception.endTimeVisit": { $ne: endTimeVisit },
+    // "Exception.dateOfVisit": dateOfVisit,
+    // "Exception.startTimeVisit": { $ne: startTimeVisit },
+    // "Exception.endTimeVisit": { $ne: endTimeVisit },
   }).then((data) => {
     if (data) {
-      console.log("infos dispo: ", data);
-      console.log("exception.date: ", data.Exception.dateOfVisit);
+      // Vérifier s'il y a une première exception :
+      if (data.Exception.length > 0) {
+        for (let i = 0; i < data.Exception.length; i++) {
+          if (
+            data.Exception[i].dateOfVisit === dateOfVisit &&
+            data.Exception[i].startTimeVisit === startTimeVisit &&
+            data.Exception[i].endTimeVisit === endTimeVisit
+          ) {
 
-      const newVisit = new Visite({
-        prosId: prosId,
-        usersId: usersId,
-        dateOfVisit: dateOfVisit,
-        startTimeVisit: startTimeVisit,
-        endTimeVisit: endTimeVisit,
-        duration: duration,
-        statut: "en attente",
-        bienImmoId: bienImmoId,
-      });
-      newVisit.save().then((newVisit) => {
-        res.json({
-          message: "Rendez-vous créé avec succès.",
-          result: true,
-          newVisit: newVisit,
-        });
-      });
-      data.Exception.push({
-        dateOfVisit: dateOfVisit,
-        startTimeVisit: startTimeVisit,
-        endTimeVisit: endTimeVisit,
-        duration: duration,
-      });
-      data.save();
-      console.log("data.Exception: ", data.Exception);
+            // console.log("data.Exception[i].dateOfVisit: ", data.Exception[i].dateOfVisit);
+            // console.log("data.Exception[i].startTimeVisit: ", data.Exception[i].startTimeVisit);
+            // console.log("data.Exception[i].endTimeVisit: ", data.Exception[i].endTimeVisit);
+            return res.json({
+              message: "Le pro n'est pas disponible à ce moment-là. mais y'a d'autres visites",
+              result: false,
+            });
+          } else {
+            const newVisit = new Visite({
+              prosId: prosId,
+              usersId: usersId,
+              dateOfVisit: dateOfVisit,
+              startTimeVisit: startTimeVisit,
+              endTimeVisit: endTimeVisit,
+              duration: duration,
+              statut: "en attente",
+              bienImmoId: bienImmoId,
+            });
+            newVisit.save().then(() => {
+              // res.json({
+              //   message: "Rendez-vous créé avec succès.",
+              //   result: true,
+              //   newVisit: newVisit,
+              // });
+            });
+            data.Exception.push({
+              dateOfVisit: dateOfVisit,
+              startTimeVisit: startTimeVisit,
+              endTimeVisit: endTimeVisit,
+              duration: duration,
+            })
+            console.log("data.Exception: ", data.Exception);
+          }
+        }
+      } 
+      // S'il n'y a pas d'exception, créer la visite
+      else {
+        // const newVisit = new Visite({
+        //   prosId: prosId,
+        //   usersId: usersId,
+        //   dateOfVisit: dateOfVisit,
+        //   startTimeVisit: startTimeVisit,
+        //   endTimeVisit: endTimeVisit,
+        //   duration: duration,
+        //   statut: "en attente",
+        //   bienImmoId: bienImmoId,
+        // });
+        // newVisit.save().then((newVisit) => {
+        //   res.json({
+        //     message: "Rendez-vous créé avec succès.",
+        //     result: true,
+        //     newVisit: newVisit,
+        //   });
+        // });
+        // data.Exception.push({
+        //   dateOfVisit: dateOfVisit,
+        //   startTimeVisit: startTimeVisit,
+        //   endTimeVisit: endTimeVisit,
+        //   duration: duration,
+        // })
+
+        // console.log("data.Exception: ", data.Exception);
+        // S'il y a une exception, vérifier si elle est différente de la nouvelle visite
+      }
     } else {
       res.json({
         message: "Le pro n'est pas disponible à ce moment-là.",
@@ -119,6 +163,46 @@ router.get("/user/:usersId", (req, res) => {
     });
 });
 
-//création d'une route pour supprimer une visite
+//route pour update le statut d'une visite
+router.put("/:id", (req, res) => {
+  // Vérifier si l'id de la visite est valide
+  if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
+    return res.json({ message: "L'id de la visite n'est pas valide." });
+  }
+
+  Visite.findById(req.params.id).then((data) => {
+    if (req.body.statut === "confirmé") {
+      data.statut = "confirmé";
+      data.save();
+      res.json({
+        message: "La visite est confirmée avec succès.",
+        result: true,
+      });
+    } else if (req.body.statut === "annulé") {
+      data.statut = "annulé";
+      data.save();
+
+      res.json({
+        message: "La visite est annulée avec succès.",
+        result: true,
+      });
+      Disponibilites.findOne({
+        "Exception.dateOfVisit": data.dateOfVisit,
+        "Exception.startTimeVisit": data.startTimeVisit,
+        "Exception.endTimeVisit": data.endTimeVisit,
+        pro: req.body.prosId,
+      }).then((dispotrouvee) => {
+        console.log("data: ", dispotrouvee);
+
+        dispotrouvee.Exception = dispotrouvee.Exception.filter((nimp) => {
+          nimp.dateOfVisit !== data.dateOfVisit &&
+            nimp.startTimeVisit !== data.startTimeVisit &&
+            nimp.endTimeVisit !== data.endTimeVisit;
+        });
+        dispotrouvee.Exception.save();
+      });
+    }
+  });
+});
 
 module.exports = router;
