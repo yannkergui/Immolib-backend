@@ -15,11 +15,11 @@ const visiteSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  startTime: {
+  startTimeVisit: {
     type: String,
     required: true,
   },
-  endTime: {
+  endTimeVisit: {
     type: String,
     required: true,
   },

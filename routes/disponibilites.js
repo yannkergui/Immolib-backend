@@ -12,11 +12,11 @@ const { checkBody } = require("../modules/checkBody");
 
 // route pour créer/ajouter une disponibilité
 router.post("/", async (req, res) => {
-  const { pro, dayOfWeek, startTime, endTime } = req.body;
+  const { pro, dayOfWeek, startTimeDispo, endTimeDispo } = req.body;
 
   const availabilityRange = extendedMoment.range(
-    moment(startTime, "HH:mm"),
-    moment(endTime, "HH:mm")
+    moment(startTimeDispo, "HH:mm"),
+    moment(endTimeDispo, "HH:mm")
   );
 
   try {
@@ -24,8 +24,8 @@ router.post("/", async (req, res) => {
     const existingAvailability = await Disponibilites.findOne({
       pro: pro,
       dayOfWeek: dayOfWeek,
-      startTime: { $lt: endTime },
-      endTime: { $gt: startTime },
+      startTimeDispo: { $lt: endTimeDispo },
+      endTimeDispo: { $gt: startTimeDispo },
     });
 
     if (existingAvailability) {
@@ -38,8 +38,8 @@ router.post("/", async (req, res) => {
     const newAvailability = new Disponibilites({
       pro: pro,
       dayOfWeek: dayOfWeek,
-      startTime: startTime,
-      endTime: endTime,
+      startTimeDispo: startTimeDispo,
+      endTimeDispo: endTimeDispo,
     });
 
     await newAvailability.save();

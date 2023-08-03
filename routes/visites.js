@@ -11,19 +11,25 @@ const Visite = require("../models/visites");
 // Endpoint pour gérer la création de rendez-vous
 router.post('/', async (req, res) => {
 
-  const { prosId, usersId, date, startTime, duration, bienImmoId } = req.body;
-  const endTime = moment(startTime, 'HH:mm').add(duration, 'minutes').format('HH:mm');
-  const requestedTime = moment(date + ' ' + startTime);
+  const { prosId, usersId, date, startTimeVisit, duration, bienImmoId } = req.body;
+  const endTimeVisit = moment(startTimeVisit, 'HH:mm').add(duration, 'minutes').format('HH:mm');
+  const requestedTime = moment(date + ' ' + startTimeVisit);
 
   try {
     // Récupérer toutes les disponibilités du professionnel pour le jour de la semaine spécifié
-    const disponibilites = await Disponibilites.find({ prosId: prosId, dayOfWeek: moment(date).format('dddd') });
+    const disponibilites = await Disponibilites.find({ pro: pro});
 
+     // Filtrer les disponibilités pour le jour de la semaine demandé
+     const disponibilitesJour = disponibilites.filter((disponibilite) => {
+      const dayOfWeek = moment(disponibilite.dayOfWeek, 'dddd');
+
+      return dayOfWeek.format('dddd') === moment(date).format('dddd');
+    });
     // Vérifier les conflits avec les disponibilités existantes
-    const hasConflict = disponibilites.some((disponibilite) => {
-      const startTime = moment(disponibilite.startTime, 'HH:mm');
-      const endTime = moment(disponibilite.endTime, 'HH:mm');
-      const availabilityRange = extendedMoment.range(startTime, endTime);
+    const hasConflict = disponibilitesJour.some((disponibilite) => {
+      const startTimeDispo = moment(disponibilite.startTimeDispo, 'HH:mm');
+      const endTimeDispo = moment(disponibilite.endTimeDispo, 'HH:mm');
+      const availabilityRange = extendedMoment.range(startTimeDispo, endTimeDispo);
       const requestedRange = extendedMoment.range(requestedTime, requestedTime.clone().add(duration, 'minutes'));
 
       return availabilityRange.overlaps(requestedRange);
@@ -38,8 +44,8 @@ router.post('/', async (req, res) => {
       prosId: prosId,
       usersId: usersId,
       date: date,
-      startTime: startTime,
-      endTime: endTime,
+      startTimeVisit: startTimeVisit,
+      endTimeVisit: endTimeVisit,
       duration: duration,
       statut: 'en attente', // Le rendez-vous est en attente de confirmation par le professionnel
       bienImmoId: bienImmoId,
