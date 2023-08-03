@@ -1,5 +1,6 @@
 var express = require("express");
 var router = express.Router();
+const mongoose = require("mongoose");
 
 const moment = require("moment");
 const { extendMoment } = require("moment-range");
@@ -9,56 +10,75 @@ const Disponibilites = require("../models/disponibilites");
 const Visite = require("../models/visites");
 
 // Endpoint pour gérer la création de rendez-vous
-router.post('/', async (req, res) => {
+router.post("/", (req, res) => {
+  const { prosId, usersId, date, startTimeVisit, duration, bienImmoId } =
+    req.body;
 
-  const { prosId, usersId, date, startTimeVisit, duration, bienImmoId } = req.body;
-  const endTimeVisit = moment(startTimeVisit, 'HH:mm').add(duration, 'minutes').format('HH:mm');
-  const requestedTime = moment(date + ' ' + startTimeVisit);
+  //création d'une constante pour le endTimeVisit qui est le StartTime + duration de la visite
+  const endTimeVisit = moment(startTimeVisit, "HH:mm")
+    .add(duration, "minutes")
+    .format("HH:mm");
 
-  try {
-    // Récupérer toutes les disponibilités du professionnel pour le jour de la semaine spécifié
-    const disponibilites = await Disponibilites.find({ pro: pro});
+  // Vérifier si le pro est disponible
+  Disponibilites.findOne({
+    pro: prosId,
+    dayOfWeek: date,
+    startTimeDispo: { $lte: startTimeVisit },
+    endTimeDispo: { $gte: endTimeVisit },
+  }).then((data) => {
+    if (data) {
+      console.log("infos dispo: ", data);
 
-     // Filtrer les disponibilités pour le jour de la semaine demandé
-     const disponibilitesJour = disponibilites.filter((disponibilite) => {
-      const dayOfWeek = moment(disponibilite.dayOfWeek, 'dddd');
-
-      return dayOfWeek.format('dddd') === moment(date).format('dddd');
-    });
-    // Vérifier les conflits avec les disponibilités existantes
-    const hasConflict = disponibilitesJour.some((disponibilite) => {
-      const startTimeDispo = moment(disponibilite.startTimeDispo, 'HH:mm');
-      const endTimeDispo = moment(disponibilite.endTimeDispo, 'HH:mm');
-      const availabilityRange = extendedMoment.range(startTimeDispo, endTimeDispo);
-      const requestedRange = extendedMoment.range(requestedTime, requestedTime.clone().add(duration, 'minutes'));
-
-      return availabilityRange.overlaps(requestedRange);
-    });
-
-    if (hasConflict) {
-      return res.status(409).json({ message: "Conflit de disponibilité. Le créneau n'est pas disponible." });
+      const newVisit = new Visite({
+        prosId: prosId,
+        usersId: usersId,
+        date: date,
+        startTimeVisit: startTimeVisit,
+        endTimeVisit: endTimeVisit,
+        duration: duration,
+        statut: "en attente",
+        bienImmoId: bienImmoId,
+      });
+      newVisit.save().then((newVisit) => {
+        res.json({
+          message: "Rendez-vous créé avec succès.",
+          result: true,
+          newVisit: newVisit,
+        });
+      });
+    } else {
+      res.json({
+        message: "Le pro n'est pas disponible à ce moment-là.",
+        result: false,
+      });
     }
-
-    // Si pas de conflit, créer le rendez-vous dans la base de données
-    const newAppointment = new Visite({
-      prosId: prosId,
-      usersId: usersId,
-      date: date,
-      startTimeVisit: startTimeVisit,
-      endTimeVisit: endTimeVisit,
-      duration: duration,
-      statut: 'en attente', // Le rendez-vous est en attente de confirmation par le professionnel
-      bienImmoId: bienImmoId,
-    });
-
-    await newAppointment.save();
-
-    // Mettre à jour la disponibilité du professionnel (voir la logique de mise à jour dans la réponse précédente)
-
-    return res.status(200).json({ message: 'Rendez-vous créé avec succès.' });
-  } catch (error) {
-    return res.status(500).json({ message: 'Une erreur est survenue lors de la création du rendez-vous.' });
-  }
+  });
 });
+
+//création de la route pour récupérer les visites d'un pro
+router.get("/:prosId", (req, res) => {
+
+  
+  // Vérifier si l'id du professionnel est valide
+  if (!mongoose.Types.ObjectId.isValid(req.params.prosId)) {
+    return res.json({ message: "L'id du professionnel n'est pas valide." });
+  }
+
+  Visite.find({ prosId: req.params.prosId })
+    .populate("usersId")
+    .populate("bienImmoId")
+    .then((data) => {
+      if (data) {
+        res.json({ VisitesTrouvees: data, result: true });
+      } else {
+        res.json({
+          message: "Pas de visites trouvées pour ce pro",
+          result: false,
+        });
+      }
+    });
+});
+
+//création d'une route pour récupérer les visites d'un user
 
 module.exports = router;
