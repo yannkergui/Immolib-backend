@@ -71,15 +71,15 @@ router.get("/:email", (req, res) => {
 
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION PROS
-router.put('/:email', (req, res) => {  
+router.put('/:token', (req, res) => {  
     
   const data = req.body;
 
-  User.updateOne({email:req.params.email}, {$set : data}).then(() => {
-    User.findOne({email:req.params.email}).then(data => { 
-    if (data) {
-      console.log('data : ', data)
-    res.json({userUpdated: data })
+  Pros.updateOne({token:req.params.token}, {$set : data}).then(() => {
+    Pros.findOne({token:req.params.token}).then(proUpdated => { 
+    if (proUpdated) {
+      console.log('data : ', proUpdated)
+    res.json({proUpdated: proUpdated })
     } else {
       res.json({erreur : "Utilisateur non trouvé" })
     }

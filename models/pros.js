@@ -1,18 +1,23 @@
 const mongoose = require('mongoose');
 
 const prosSchema = mongoose.Schema({
-  raisonSociale: String,
-  siret: Number,
   prenom: String,
   nom: String,
   email : String,
   tel: Number,
   motDePasse: String,
   token: String,
-  numRue: String,
-  rue: String,
-  codePostal : Number,
   photo: String,
+  agence: {
+    denomination: String,
+    siren: String,
+    siret: String,
+    dateCreation: String,
+    numRue: String,
+    voie: String,
+    codePostal : Number,
+    commune: String,
+    },
   planning : 
     { dateDispo: Date,
     },
