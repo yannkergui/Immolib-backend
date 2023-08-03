@@ -18,9 +18,7 @@ const prosSchema = mongoose.Schema({
     codePostal : Number,
     commune: String,
     },
-  planning : 
-    { dateDispo: Date,
-    },
+  disponibilites : [{type: mongoose.Schema.Types.ObjectId, ref: 'disponibilites'}],
 });
   
 const Pros = mongoose.model('pros', prosSchema);
