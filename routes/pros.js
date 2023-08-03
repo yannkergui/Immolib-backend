@@ -82,19 +82,22 @@ router.get("/:email", (req, res) => {
 });
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION PROS
-router.put("/:email", (req, res) => {
+router.put('/:token', (req, res) => {  
+    
   const data = req.body;
 
-  Pros.updateOne({ email: req.params.email }, { $set: data }).then(() => {
-    Pros.findOne({ email: req.params.email }).then((data) => {
-      if (data) {
-        res.json({ prosUpdated: data });
-      } else {
-        res.json({ erreur: "Utilisateur non trouvé" });
-      }
-    });
-  });
-});
+  Pros.updateOne({token:req.params.token}, {$set : data}).then(() => {
+    Pros.findOne({token:req.params.token}).then(proUpdated => { 
+    if (proUpdated) {
+      console.log('data : ', proUpdated)
+    res.json({proUpdated: proUpdated })
+    } else {
+      res.json({erreur : "Utilisateur non trouvé" })
+    }
+  })
+  })
+})
+
 
 //SUPPRESSION DE COMPTE
 router.delete("/:email", (req, res) => {
