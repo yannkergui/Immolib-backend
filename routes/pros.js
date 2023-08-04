@@ -12,12 +12,12 @@ router.post("/signup", (req, res) => {
   // Vérifie que les champs ne sont pas vides
   if (
     !checkBody(req.body, [
-      "raisonSociale",
       "prenom",
       "nom",
       "email",
-      "motDePasse",
       "tel",
+      "motDePasse",
+      "siret",
     ])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
@@ -28,21 +28,26 @@ router.post("/signup", (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.motDePasse, 10);
 
-      const { raisonSociale, siret, prenom, nom, email, tel } = req.body;
+      const { prenom, nom, email, tel, denomination, siren, siret, dateCreation, adresse } = req.body;
 
       const newPros = new Pros({
-        raisonSociale,
-        siret,
         prenom,
         nom,
         email,
         tel,
         motDePasse: hash,
         token: uid2(32),
+        agence : {
+          denomination : denomination,
+          siren : siren,
+          siret : siret,
+          dateCreation : dateCreation,
+          adresse : adresse,
+        }
       });
 
-      newPros.save().then((newDoc) => {
-        res.json({ result: true, pro: newDoc });
+      newPros.save().then((newPro) => {
+        res.json({ result: true, newPro: newPro });
       });
     } else {
       // Utilisateur déjà existant dans la BDD
