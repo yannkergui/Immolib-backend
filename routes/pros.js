@@ -21,7 +21,6 @@ router.post("/signup", (req, res) => {
     ])
   ) {
     res.json({ result: false, error: "Missing or empty fields" });
-    return;
   }
   Pros.findOne({ email: req.body.email }).then((data) => {
     // Vérifie si l'utilisateur n'est pas déjà enregistré dans la BDD
