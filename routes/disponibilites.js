@@ -74,32 +74,35 @@ router.get("/:pro", (req, res) => {
 });
 
 router.get("/dateSearch/:pro", (req, res) => {
+  
+  //création d'une constante pour la date de la visite
+  const{dateOfVisit} = req.body;
 
   //création d'une constante pour le jour de la semaine
   const dayOfWeek = moment(dateOfVisit).locale("fr").format("dddd");
 
   // Vérifier si le pro est disponible un jour en particulier
-  Disponibilites.findOne({
-    pro: prosId,
+  Disponibilites.find({
+    pro: req.params.pro,
     dayOfWeek: dayOfWeek,
-    startTimeDispo: { $lte: startTimeVisit },
-    endTimeDispo: { $gte: endTimeVisit },
   }).then((data) => {
+    console.log('data',data);
     let result = [];
 
     for (let i = 0; i < data.length; i++) {
       if (data[i].pro == req.params.pro) {
-        console.log(data[i]);
+        // console.log(data[i]);
         result.push(data[i]);
       }
     }
     if (result.length == 0) {
       res.json({ result: false });
     } else {
-      res.json({ data: result });
+      res.json({result: true, data: result });
     }
   });
 });
+
 
 // route pour supprimer une disponibilité
 router.delete("/:id", (req, res) => {
