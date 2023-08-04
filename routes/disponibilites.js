@@ -93,7 +93,9 @@ router.put("/:id", (req, res) => {
   Disponibilites.updateOne({ _id: req.params.id }, { $set: data }).then(() => {
     Disponibilites.findById(req.params.id).then((data) => {
       if (data) {
-        res.json({ dispo: data });
+        res.json({ dispo: data, 
+          // result : '' 
+        });
       } else {
         res.json({ erreur: "Disponibilité non trouvée" });
       }
