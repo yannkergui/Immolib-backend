@@ -125,113 +125,6 @@ router.get("/user/:usersId", (req, res) => {
     });
 });
 
-// //route pour update le statut d'une visite et retirer l'exception dans les disponibilités du pro
-// router.put("/statut/:id", async (req, res) => {
-//   // Vérifier si l'id de la visite est valide
-//   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-//     return res.json({ message: "L'id de la visite n'est pas valide." });
-//   }
-
-//   const data = await Visite.findById(req.params.id);
-
-//   if (req.body.statut === "confirmé") {
-//     data.statut = "confirmé";
-//     await data.save();
-//     res.json({
-//       message: "La visite est confirmée avec succès.",
-//       result: true,
-//     });
-//   } else if (req.body.statut === "annulé") {
-//     data.statut = "annulé";
-//     await data.save();
-
-//     res.json({
-//       message: "La visite est annulée avec succès.",
-//       result: true,
-//     });
-//   }
-
-//   const dispotrouvee = await Disponibilites.findOne({
-//     "Exception.dateOfVisit": data.dateOfVisit,
-//     "Exception.startTimeVisit": data.startTimeVisit,
-//     "Exception.endTimeVisit": data.endTimeVisit,
-//     pro: req.body.prosId,
-//   });
-//   // .then((dispotrouvee) => {
-//   //         // console.log("data: ", dispotrouvee);
-//   //         // console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
-//   //         // console.log("data.dateOfVisit: ", data.dateOfVisit);
-//   //         // console.log("data.startTimeVisit: ", data.startTimeVisit);
-//   //         // console.log("data.endTimeVisit: ", data.endTimeVisit);
-//   //           console.log("e.dateOfVisit: ", e.dateOfVisit);
-//   //           console.log("e.startTimeVisit: ", e.startTimeVisit);
-//   //           console.log("e.endTimeVisit: ", e.endTimeVisit);
-//   //         console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
-
-//   if (dispotrouvee) {
-//     dispotrouvee.Exception = dispotrouvee.Exception.filter((e) => {
-//       return (
-//         e.dateOfVisit !== data.dateOfVisit &&
-//         e.startTimeVisit !== data.startTimeVisit &&
-//         e.endTimeVisit !== data.endTimeVisit
-//       );
-//     });
-//     // await dispotrouvee.save();
-//   }
-
-// });
-
-// router.put("/statut/:id", async (req, res) => {
-//   // Vérifier si l'id de la visite est valide
-//   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
-//     return res.json({ message: "L'id de la visite n'est pas valide." });
-//   }
-
-//  await Visite.findById(req.params.id).then((data) => {
-//     if (req.body.statut === "confirmé") {
-//       data.statut = "confirmé";
-//       data.save();
-//       res.json({
-//         message: "La visite est confirmée avec succès.",
-//         result: true,
-//       });
-//     } else if (req.body.statut === "annulé") {
-//       data.statut = "annulé";
-//        data.save();
-
-//       res.json({
-//         message: "La visite est annulée avec succès.",
-//         result: true,
-//       });
-//       Disponibilites.findOne({
-//         "Exception.dateOfVisit": data.dateOfVisit,
-//         "Exception.startTimeVisit": data.startTimeVisit,
-//         "Exception.endTimeVisit": data.endTimeVisit,
-//         pro: req.body.prosId,
-//       }).then((dispotrouvee) => {
-//         // console.log("data: ", dispotrouvee);
-//         // console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
-//         // console.log("data.dateOfVisit: ", data.dateOfVisit);
-//         // console.log("data.startTimeVisit: ", data.startTimeVisit);
-//         // console.log("data.endTimeVisit: ", data.endTimeVisit);
-
-//         dispotrouvee.Exception = dispotrouvee.Exception.filter((e) => {
-//           console.log("e.dateOfVisit: ", e.dateOfVisit);
-//           console.log("e.startTimeVisit: ", e.startTimeVisit);
-//           console.log("e.endTimeVisit: ", e.endTimeVisit);
-//           return (
-//             e.dateOfVisit !== data.dateOfVisit &&
-//             e.startTimeVisit !== data.startTimeVisit &&
-//             e.endTimeVisit !== data.endTimeVisit
-//           );
-//         });
-//         console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
-//         // dispotrouvee.save();
-//       });
-//     }
-//   });
-// });
-
 router.put("/statut/:id", async (req, res) => {
   // Vérifier si l'id de la visite est valide
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
@@ -288,26 +181,26 @@ router.put("/statut/:id", async (req, res) => {
 //création de la route pour mettre à jour une visite
 router.put("/:id", async (req, res) => {
 
-  // Récupérer les données envoyées
-  const data = req.body;
-
   // Vérifier si l'id de la visite est valide
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.json({ message: "L'id de la visite n'est pas valide." });
   }
 
-  
-  Visite.updateOne({ _id: req.params.id }, { $set: data }).then(() => {
-    Visite.findById(req.params.id).then((data) => {
-      if (data) {
-        res.json({
-          dispo: data,
-          message: "La visite a été modifiée avec succès.",
-        });
-      } else {
-        res.json({ erreur: "La visite n'a pas été trouvée." });
-      }
-    });
+  Visite.findById(req.params.id).then((data) => {
+    
+
+
+  // Visite.updateOne({ _id: req.params.id }, { $set: req.body }).then(() => {
+  //   Visite.findById(req.params.id).then((data) => {
+  //     if (data) {
+  //       res.json({
+  //         dispo: data,
+  //         message: "La visite a été modifiée avec succès.",
+  //       });
+  //     } else {
+  //       res.json({ erreur: "La visite n'a pas été trouvée." });
+  //     }
+  //   });
   });
 });
 

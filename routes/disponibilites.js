@@ -73,6 +73,34 @@ router.get("/:pro", (req, res) => {
   });
 });
 
+router.get("/dateSearch/:pro", (req, res) => {
+
+  //création d'une constante pour le jour de la semaine
+  const dayOfWeek = moment(dateOfVisit).locale("fr").format("dddd");
+
+  // Vérifier si le pro est disponible un jour en particulier
+  Disponibilites.findOne({
+    pro: prosId,
+    dayOfWeek: dayOfWeek,
+    startTimeDispo: { $lte: startTimeVisit },
+    endTimeDispo: { $gte: endTimeVisit },
+  }).then((data) => {
+    let result = [];
+
+    for (let i = 0; i < data.length; i++) {
+      if (data[i].pro == req.params.pro) {
+        console.log(data[i]);
+        result.push(data[i]);
+      }
+    }
+    if (result.length == 0) {
+      res.json({ result: false });
+    } else {
+      res.json({ data: result });
+    }
+  });
+});
+
 // route pour supprimer une disponibilité
 router.delete("/:id", (req, res) => {
   Disponibilites.findById(req.params.id).then((data) => {
@@ -93,8 +121,9 @@ router.put("/:id", (req, res) => {
   Disponibilites.updateOne({ _id: req.params.id }, { $set: data }).then(() => {
     Disponibilites.findById(req.params.id).then((data) => {
       if (data) {
-        res.json({ dispo: data, 
-          // result : '' 
+        res.json({
+          dispo: data,
+          // result : ''
         });
       } else {
         res.json({ erreur: "Disponibilité non trouvée" });
