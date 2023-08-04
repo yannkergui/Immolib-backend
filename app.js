@@ -4,6 +4,14 @@ var express = require("express");
 var path = require("path");
 var cookieParser = require("cookie-parser");
 var logger = require("morgan");
+const cloudinary = require("cloudinary").v2;
+
+cloudinary.config({ 
+    cloud_name: 'dnzrnfglq', 
+    api_key: '171712511772765', 
+    api_secret: 'nI7jg112udiMV97LUEVObvtfDfM' 
+  });
+
 
 var indexRouter = require("./routes/index");
 var usersRouter = require("./routes/users");
@@ -15,6 +23,9 @@ var visitesRouter = require("./routes/visites");
 var app = express();
 const cors = require("cors"); // Cors installation
 app.use(cors()); // Cors installation
+
+const fileUpload = require('express-fileupload');
+app.use(fileUpload());
 
 app.use(logger("dev"));
 app.use(express.json());
