@@ -41,7 +41,7 @@ router.post("/signup", (req, res) => {
         tel,
         motDePasse: hash,
         token: uid2(32),
-        photo:'',
+        // photo:'',
         agence : {
           denomination : denomination,
           siren : siren,
@@ -131,6 +131,7 @@ router.post('/uploadPhoto', async (req, res) => {
    console.log("test1");
     if (!resultMove) { 
         fs.unlinkSync(photoPath);
+        
         res.json({ result: true, url: resultCloudinary.secure_url });
     } else {
         res.json({ result: false, error: resultMove });
