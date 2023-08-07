@@ -92,7 +92,8 @@ router.get("/pro/:prosId", (req, res) => {
     .populate("bienImmoId")
     .then((data) => {
       if (data.length > 0) {
-        res.json({ VisitesTrouvees: data, result: true });
+        res.json({ VisitesTrouvees: data, result: true,  });
+        // console.log("data", data);
       } else {
         res.json({
           message: "Pas de visites trouvées pour ce pro",
@@ -176,6 +177,8 @@ router.put("/statut/:id", async (req, res) => {
       console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
     }
   }
+
+  
 });
 
 //création de la route pour mettre à jour une visite

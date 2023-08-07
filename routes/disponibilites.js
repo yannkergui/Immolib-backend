@@ -24,8 +24,8 @@ router.post("/", async (req, res) => {
     const existingAvailability = await Disponibilites.findOne({
       pro: pro,
       dayOfWeek: dayOfWeek,
-      startTimeDispo: { $lt: endTimeDispo },
-      endTimeDispo: { $gt: startTimeDispo },
+      startTimeDispo: { $lte: endTimeDispo },
+      endTimeDispo: { $gte: startTimeDispo },
     });
 
     if (existingAvailability) {
