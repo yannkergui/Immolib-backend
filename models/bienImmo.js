@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bienSchema = mongoose.Schema({
+const biensSchema = mongoose.Schema({
   titre :String,
   description : String,
   surface: Number,
@@ -20,6 +20,6 @@ const bienSchema = mongoose.Schema({
   pro: {type: mongoose.Schema.Types.ObjectId, ref: 'pros'},
 });
   
-const Biens = mongoose.model('biens', bienSchema);
+const Biens = mongoose.model('biens', biensSchema);
 
 module.exports = Biens;

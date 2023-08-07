@@ -8,6 +8,7 @@ const extendedMoment = extendMoment(moment);
 
 const Disponibilites = require("../models/disponibilites");
 const Visite = require("../models/visites");
+const Pros = require ("../models/pros")
 
 // Création d'une visite et mise à jour des dispo du pro
 router.post("/", (req, res) => {
@@ -81,26 +82,25 @@ router.post("/", (req, res) => {
 });
 
 //création de la route pour récupérer les visites d'un pro
-router.get("/pro/:prosId", (req, res) => {
-  // Vérifier si l'id du professionnel est valide
-  if (!mongoose.Types.ObjectId.isValid(req.params.prosId)) {
-    return res.json({ message: "L'id du professionnel n'est pas valide." });
-  }
-
-  Visite.find({ prosId: req.params.prosId })
-    .populate("usersId")
-    .populate("bienImmoId")
-    .then((data) => {
-      if (data.length > 0) {
-        res.json({ VisitesTrouvees: data, result: true });
-      } else {
-        res.json({
-          message: "Pas de visites trouvées pour ce pro",
-          result: false,
-        });
-      }
-    });
-});
+router.get("/pro/:token", (req, res) => {
+  Pros.findOne ({token : req.params.token})
+    .then (existingPro => {
+      if (!existingPro) {
+          return res.json({ result: false, error: 'Professionnel non trouvé' });
+        }
+   
+      Visite.find({ prosId: existingPro._id })
+      .populate("usersId")
+      .populate("bienImmoId")
+      .then (visitesTrouvees => {
+        if (visitesTrouvees.length>0)
+          {   console.log("les visites", visitesTrouvees)
+            res.json({result: true, visitesTrouvees : visitesTrouvees})}
+        else
+          {res.json({result: false, error: "Pas de visite trouvée pour ce pro"})}
+      })
+    })
+})
 
 //création d'une route pour récupérer les visites d'un user
 router.get("/user/:usersId", (req, res) => {
