@@ -7,6 +7,11 @@ const { checkBody } = require("../modules/checkBody");
 const uid2 = require("uid2");
 const bcrypt = require("bcrypt");
 
+const cloudinary = require('cloudinary').v2;
+const fs = require('fs');
+
+const uniqid = require('uniqid');
+
 //SIGN UP - inscription Du Pro
 router.post("/signup", (req, res) => {
   // Vérifie que les champs ne sont pas vides
@@ -36,6 +41,7 @@ router.post("/signup", (req, res) => {
         tel,
         motDePasse: hash,
         token: uid2(32),
+        photo:'',
         agence : {
           denomination : denomination,
           siren : siren,
@@ -114,6 +120,25 @@ router.delete("/:email", (req, res) => {
 
 
 
+
+
+// route upload photo profile :
+
+router.post('/uploadPhoto', async (req, res) => {
+    const photoPath = `./tmp/${uniqid()}.jpeg`;
+    const resultMove = await req.files.proProfilePhotoFromFront.mv(photoPath);
+    const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+   console.log("test1");
+    if (!resultMove) { 
+        fs.unlinkSync(photoPath);
+        res.json({ result: true, url: resultCloudinary.secure_url });
+    } else {
+        res.json({ result: false, error: resultMove });
+    }
+
+})
+
+module.exports = router;
 
 
 
