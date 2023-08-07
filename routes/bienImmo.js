@@ -68,7 +68,7 @@ router.put('/:Id', (req, res) => {
 
 //SUPPRESSION DE Bien
 router.delete('/:Id', (req, res) => {
-    Biens.deleteOne({Id: req.params.Id})
+    Biens.deleteOne({_id: req.params.Id})
     .then(() => {
       res.json({message : "Bien supprimé" });
     })

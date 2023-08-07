@@ -73,7 +73,7 @@ router.get("/:pro", (req, res) => {
   });
 });
 
-router.get("/dateSearch/:pro", (req, res) => {
+router.post("/dateSearch/:pro", (req, res) => {
   
   //création d'une constante pour la date de la visite
   const{dateOfVisit} = req.body;
