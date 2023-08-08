@@ -85,12 +85,37 @@ router.put('/:Id', (req, res) => {
 
 
 //SUPPRESSION DE Bien
-router.delete('/:Id', (req, res) => {
-    Biens.deleteOne({Id: req.params.Id})
-    .then(() => {
-      res.json({message : "Bien supprimé" });
-    })
- });
+
+// router.delete('/:Id', (req, res) => {
+//     Biens.deleteOne({Id: req.params.Id})
+//     .then(() => {
+//       res.json({message : "Bien supprimé" });
+//     })
+//  });
+
+ router.delete('/:Id', async (req, res) => {
+    const bienId = req.params.Id;
+
+    // Récupérer les visites associées au bien
+    const bien = await Biens.findOne({ _id: bienId }).populate('visites');
+
+    if (!bien) {
+      return res.json({ message: "Bien introuvable" });
+    }
+
+    // Supprimer les visites associées au bien
+    if (bien.visites.length > 0) {
+      for (const visiteId of bien.visites) {
+        await Visite.deleteOne({ _id: visiteId });
+      }
+    }
+
+    // Supprimer le bien lui-même
+    await Biens.deleteOne({ _id: bienId });
+
+    res.json({ message: "Bien et visites associées supprimés avec succès" });
+  } )
+;
 
   //UPLOAD DES PHOTOS DU BIEN
  
