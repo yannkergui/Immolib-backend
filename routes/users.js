@@ -65,10 +65,10 @@ router.get('/', (req, res) => {
 });
 
 //RECUPERATION D'UN UTILSATEUR DE LA BDD
-router.get('/:email', (req, res) => {
-  const {email}=req.params;
+router.get('/:token', (req, res) => {
+  const {token}=req.params;
 
-	User.findOne({email}).then(data => {
+	User.findOne({token}).then(data => {
     if (data) {
       res.json({ user: data });
     } else {
