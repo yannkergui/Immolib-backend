@@ -8,6 +8,7 @@ const extendedMoment = extendMoment(moment);
 
 const Disponibilites = require("../models/disponibilites");
 const Visite = require("../models/visites");
+const Pros = require ("../models/pros")
 
 // Création d'une visite et mise à jour des dispo du pro
 router.post("/", (req, res) => {
@@ -81,26 +82,25 @@ router.post("/", (req, res) => {
 });
 
 //création de la route pour récupérer les visites d'un pro
-router.get("/pro/:prosId", (req, res) => {
-  // Vérifier si l'id du professionnel est valide
-  if (!mongoose.Types.ObjectId.isValid(req.params.prosId)) {
-    return res.json({ message: "L'id du professionnel n'est pas valide." });
-  }
-
-  Visite.find({ prosId: req.params.prosId })
-    .populate("usersId")
-    .populate("bienImmoId")
-    .then((data) => {
-      if (data.length > 0) {
-        res.json({ VisitesTrouvees: data, result: true });
-      } else {
-        res.json({
-          message: "Pas de visites trouvées pour ce pro",
-          result: false,
-        });
-      }
-    });
-});
+router.get("/pro/:token", (req, res) => {
+  Pros.findOne ({token : req.params.token})
+    .then (existingPro => {
+      if (!existingPro) {
+          return res.json({ result: false, error: 'Professionnel non trouvé' });
+        }
+   
+      Visite.find({ prosId: existingPro._id })
+      .populate("usersId")
+      .populate("bienImmoId")
+      .then (visitesTrouvees => {
+        if (visitesTrouvees.length>0)
+          {   console.log("les visites", visitesTrouvees)
+            res.json({result: true, visitesTrouvees : visitesTrouvees})}
+        else
+          {res.json({result: false, error: "Pas de visite trouvée pour ce pro"})}
+      })
+    })
+})
 
 //création d'une route pour récupérer les visites d'un user
 router.get("/user/:usersId", (req, res) => {
@@ -176,31 +176,96 @@ router.put("/statut/:id", async (req, res) => {
       console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
     }
   }
+
+  
 });
 
 //création de la route pour mettre à jour une visite
 router.put("/:id", async (req, res) => {
-
   // Vérifier si l'id de la visite est valide
   if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
     return res.json({ message: "L'id de la visite n'est pas valide." });
   }
+  //destructuration du req.body
+  const { dateOfVisit, startTimeVisit, duration } = req.body;
+
+  //création d'une constante pour le endTimeVisit qui est le StartTime + duration de la visite
+  const endTimeVisit = moment(startTimeVisit, "HH:mm")
+    .add(duration, "minutes")
+    .format("HH:mm");
+
+  //création d'une constante pour le jour de la semaine
+  const dayOfWeek = moment(dateOfVisit).locale("fr").format("dddd");
 
   Visite.findById(req.params.id).then((data) => {
-    
+    //data : c'est le résultat de la visite trouvée via params
+    if (data) {
+      // Vérifier si le pro est disponible
+      Disponibilites.findOne({
+        pro: data.prosId,
+        dayOfWeek: dayOfWeek,
+        startTimeDispo: { $lte: startTimeVisit },
+        endTimeDispo: { $gte: endTimeVisit },
+      }).then((dispoData) => {
+        //dispodata : c'est le résultat de la disponibilité trouvée via params
+        if (!dispoData) {
+          res.json({
+            result: false,
+            message: "Le professionnel n'est pas disponible à ces horaires.",
+          });
+        } else {
+          const isConflict = dispoData.Exception.some((exception) => {
+            return (
+              exception.dateOfVisit === dateOfVisit &&
+              exception.startTimeVisit === startTimeVisit &&
+              exception.endTimeVisit === endTimeVisit
+            );
+          });
 
+          if (isConflict) {
+            res.json({
+              message: "Le professionnel est déjà pris sur ces horaires.",
+              result: false,
+            });
+          } else {
+            //suppression de l'exception dans la disponibilité du pro
+            dispoData.Exception = dispoData.Exception.filter((e) => {
+              if (e.dateOfVisit !== data.dateOfVisit) {
+                return true; // Garder l'exception si les dates sont différentes
+              } else {
+                // Si les dates sont les mêmes, vérifier également les heures de début et de fin
+                return (
+                  e.startTimeVisit !== data.startTimeVisit &&
+                  e.endTimeVisit !== data.endTimeVisit
+                );
+              }
+            });
 
-  // Visite.updateOne({ _id: req.params.id }, { $set: req.body }).then(() => {
-  //   Visite.findById(req.params.id).then((data) => {
-  //     if (data) {
-  //       res.json({
-  //         dispo: data,
-  //         message: "La visite a été modifiée avec succès.",
-  //       });
-  //     } else {
-  //       res.json({ erreur: "La visite n'a pas été trouvée." });
-  //     }
-  //   });
+            // Ajouter l'exception dans la disponibilité du pro
+            dispoData.Exception.push({
+              dateOfVisit: dateOfVisit,
+              startTimeVisit: startTimeVisit,
+              endTimeVisit: endTimeVisit,
+            });
+            dispoData.save();
+
+            //update de la visite
+            Visite.updateOne(
+              { _id: req.params.id },
+              { $set: { ...req.body, endTimeVisit: endTimeVisit } }
+            ).then(() => {
+              Visite.findById(req.params.id).then((dataNewVisite) => {
+                res.json({
+                  result: true,
+                  message: "La visite a été modifiée avec succès.",
+                  data: dataNewVisite,
+                });
+              });
+            });
+          }
+        }
+      });
+    }
   });
 });
 

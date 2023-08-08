@@ -6,21 +6,24 @@ const Pros = require('../models/pros');
 const Visite = require('../models/visites');
 const Biens = require('../models/bienImmo')
 const { checkBody } = require('../modules/checkBody');
+const cloudinary = require('cloudinary').v2;
+const uniqid = require('uniqid');
+const fs = require('fs');
 
 // création Du bien
 router.post('/newBien', (req, res) => {
   // Vérifie que les champs ne sont pas vides
-  if (!checkBody(req.body, ['titre','description', 'surface','transaction', 'type', 'numeroRue','codePostal'])) {
+  if (!checkBody(req.body, ['titre','description','surface', 'transaction','type', 'numeroRue', 'rue', 'codePostal'])) {
     res.json({ result: false, error: 'Missing or empty fields' });
     return;
   }
-  Biens.findOne({ email: req.body.titre }).then(data => {
+  Biens.findOne({ titre: req.body.titre }).then(data => {
     // Vérifie si le bien n'est pas déjà enregistré dans la BDD
     if (data === null) {
-      const {titre, description, surface, type, transaction, numéroRue, rue, codePostal, nbPièces, nbChambres, meuble, photo, pro, loyerMensuel, prixVente}=req.body
+      const {titre, description, surface, type, transaction, numeroRue, rue, codePostal, nbPièces, nbChambres, meuble, photo, pro, loyerMensuel, prixVente, ville}=req.body
 
       const newBien = new Biens({
-        titre, description, surface, type, transaction, numéroRue, rue, codePostal, nbPièces, nbChambres, meuble, photo, pro,loyerMensuel, prixVente
+        titre, description, surface, type, transaction, numeroRue, rue, codePostal, nbPièces, nbChambres, meuble, photo, pro, loyerMensuel, prixVente, ville
         })
      
 
@@ -46,6 +49,21 @@ router.get("/:Id", (req, res) => {
       }
     });
   });
+
+  //recherche d'un Bien via l'idpro
+
+router.get("/pro/:pro", (req, res) => {
+  Biens.find({ pro: req.params.pro })
+  .then(data => {
+    if (data) {
+      res.json({ result: true, biens: data });
+    } else {
+      res.json({ result: false, error: "user not found" });
+    }
+  });
+});
+
+
 
 
 //MISE A JOUR D'UN CHAMP DE LA COLLECTION Bien
@@ -73,6 +91,22 @@ router.delete('/:Id', (req, res) => {
       res.json({message : "Bien supprimé" });
     })
  });
+
+  //UPLOAD DES PHOTOS DU BIEN
+ 
+  router.post('/upload', async (req, res) => {
+    const photoPath = `./tmp/${uniqid()}.jpg`;
+    const resultMove = await req.files.photoFromFront.mv(photoPath);
+  
+    if (!resultMove) {
+      const resultCloudinary = await cloudinary.uploader.upload(photoPath);
+      res.json({ result: true, url: resultCloudinary.secure_url });
+    } else {
+      res.json({ result: false, error: resultMove });
+    }
+  
+    fs.unlinkSync(photoPath);
+  });
  
 
 

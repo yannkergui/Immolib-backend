@@ -23,15 +23,14 @@ const userSchema = mongoose.Schema({
     minSurfaceAchat: Number,
     minPieceAchat: Number,
     typeInvest : String,
+    primo: String,
+    financement: String,
+    accordBanque: Boolean,
   },
   recherche: String,
   situation :String,
   salaire : String,
   contrat : String,
-  primo: String,
-  financement: String,
-  accordBanque: Boolean,
-  banqueDoc: String,
   documents : {
     idDoc: String,
     domDoc: String,
@@ -42,6 +41,7 @@ const userSchema = mongoose.Schema({
     impots: String,
     bilan: String,
     autres : String,
+    banqueDoc: String,
   }
 });
 

@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const bienSchema = mongoose.Schema({
+const biensSchema = mongoose.Schema({
   titre :String,
   description : String,
   surface: Number,
@@ -9,6 +9,7 @@ const bienSchema = mongoose.Schema({
   numeroRue: String,
   rue: String,
   codePostal: Number,
+  ville: String,
   nbPièces: Number,
   nbChambres: Number,
   meuble: Boolean,
@@ -16,9 +17,9 @@ const bienSchema = mongoose.Schema({
   loyerMensuel: Number,
   prixVente: Number,
   visites: [{type: mongoose.Schema.Types.ObjectId, ref: 'visites' }],
-  Pro: { type: mongoose.Schema.Types.ObjectId, ref: 'Pros' },
+  pro: {type: mongoose.Schema.Types.ObjectId, ref: 'pros'},
 });
   
-const Biens = mongoose.model('biens', bienSchema);
+const Biens = mongoose.model('biens', biensSchema);
 
 module.exports = Biens;
