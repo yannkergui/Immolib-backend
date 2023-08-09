@@ -93,7 +93,7 @@ router.get("/pro/:token", (req, res) => {
       .populate("bienImmoId")
       .then((visitesTrouvees) => {
         if (visitesTrouvees.length > 0) {
-          console.log("les visites", visitesTrouvees);
+          // console.log("les visites", visitesTrouvees);
           res.json({ result: true, visitesTrouvees: visitesTrouvees });
         } else {
           res.json({

@@ -68,12 +68,13 @@ router.get("/:pro", (req, res) => {
     if (result.length == 0) {
       res.json({ result: false });
     } else {
-      res.json({ data: result });
+      res.json({ data: result});
+      console.log(result);
     }
   });
 });
 
-router.get("/dateSearch/:pro", (req, res) => {
+router.post("/dateSearch/:pro", (req, res) => {
   
   //création d'une constante pour la date de la visite
   const{dateOfVisit} = req.body;
