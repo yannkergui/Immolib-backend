@@ -14,6 +14,10 @@ const Pros = require ("../models/pros")
 router.post("/", (req, res) => {
   const { prosId, usersId, dateOfVisit, startTimeVisit, duration, bienImmoId } =
     req.body;
+
+
+
+
   //création d'une constante pour le endTimeVisit qui est le StartTime + duration de la visite
   const endTimeVisit = moment(startTimeVisit, "HH:mm")
     .add(duration, "minutes")
@@ -124,6 +128,8 @@ router.get("/user/:usersId", (req, res) => {
       }
     });
 });
+
+// Modifier le statut d'une visite à Annulé ou Confirmé :
 
 router.put("/statut/:id", async (req, res) => {
   // Vérifier si l'id de la visite est valide
