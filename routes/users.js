@@ -22,10 +22,10 @@ router.post('/signup', (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.motDePasse, 10);
 
-      const {prenom, nom, email, tel}=req.body
+      const {prenom, nom, email, tel, zoneLoc}=req.body
 
       const newUser = new User({
-        prenom, nom, email, tel,
+        prenom, nom, email, tel, zoneLoc,
         motDePasse: hash,
         token: uid2(32),
         })
@@ -65,10 +65,10 @@ router.get('/', (req, res) => {
 });
 
 //RECUPERATION D'UN UTILSATEUR DE LA BDD
-router.get('/:email', (req, res) => {
-  const {email}=req.params;
+router.get('/:token', (req, res) => {
+  const {token}=req.params;
 
-	User.findOne({email}).then(data => {
+	User.findOne({token}).then(data => {
     if (data) {
       res.json({ user: data });
     } else {
