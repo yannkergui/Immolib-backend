@@ -93,6 +93,14 @@ router.get("/:Id", (req, res) => {
 
 //recherche d'un Bien via l'idpro
 
+router.get("/", (req, res) => {
+  Biens.find().then((data) => {
+      res.json({ result: true, biens: data }); 
+  });
+});
+
+//recherche des biens pour un pro
+
 router.get("/pro/:pro", (req, res) => {
   Biens.find({ pro: req.params.pro }).then((data) => {
     if (data) {
