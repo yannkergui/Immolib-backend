@@ -33,7 +33,9 @@ router.post("/signup", (req, res) => {
     if (data === null) {
       const hash = bcrypt.hashSync(req.body.motDePasse, 10);
 
-      const { prenom, nom, email, tel, denomination, siren, siret, dateCreation, adresse } = req.body;
+      const { prenom, nom, email, tel } = req.body;
+      const { denomination, siren, siret, dateCreation, adresse } = req.body.agence;
+
 
       const newPros = new Pros({
         prenom,
