@@ -7,8 +7,8 @@ const userSchema = mongoose.Schema({
   tel: String,
   motDePasse: String,
   token: String,
+  zone: String,
   location : {
-    zoneLoc : String,
     budgetMois: Number,
     typeBienLoc: String,
     minSurfaceLoc: Number,
@@ -17,7 +17,6 @@ const userSchema = mongoose.Schema({
     meuble: String,
   },
   achat : {
-    zoneAchat: String,
     budgetMax : Number,
     typeBienAchat: String,
     minSurfaceAchat: Number,
