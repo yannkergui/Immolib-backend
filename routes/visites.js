@@ -184,6 +184,13 @@ router.put("/statut/:id", async (req, res) => {
       await dispotrouvee.save();
       console.log("dispotrouvée.Exception: ", dispotrouvee.Exception);
     }
+  } else if (req.body.statut === "en attente") {
+    data.statut = "en attente";
+    await data.save();
+    res.json({
+      message: "La visite est en attente de confirmation.",
+      result: true,
+    });
   }
 });
 
