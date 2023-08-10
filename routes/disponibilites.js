@@ -115,6 +115,8 @@ router.delete("/:id", (req, res) => {
     } else {
       res.json({ message: "Disponibilité introuvable" });
     }
+
+    
   });
 });
 
